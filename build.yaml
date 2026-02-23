@@ -1,0 +1,88 @@
+---
+####################################################
+#       Pipeline Configuration                     #
+####################################################
+BuildWorkflow:
+  '.':
+    - build
+    - test
+
+  build:
+    - Clean
+    - Build_Module_ModuleBuilder
+    - Build_NestedModules_ModuleBuilder
+    - Create_Changelog_Release_Output
+
+  pack:
+    - build
+    - package_module_nupkg
+
+  hqrmtest:
+    - Invoke_HQRM_Tests_Stop_On_Fail
+
+  test:
+    - Pester_Tests_Stop_On_Fail
+    - Convert_Pester_Coverage
+    - Pester_If_Code_Coverage_Under_Threshold
+
+  publish:
+    - Publish_Release_To_GitHub
+    - Publish_Module_To_gallery
+
+####################################################
+#          ModuleBuilder Configuration             #
+####################################################
+CopyPaths: []
+Encoding: UTF8
+VersionedOutputDirectory: true
+BuiltModuleSubdirectory: builtModule
+
+ModuleBuildTasks:
+  Sampler:
+    - '*.build.Sampler.ib.tasks'
+  Sampler.GitHubTasks:
+    - '*.ib.tasks'
+
+TaskHeader: |
+  param($Path)
+  ""
+  "=" * 79
+  Write-Build Cyan "			$($Task.Name.replace("_"," ").ToUpper())"
+  Write-Build DarkGray  "$(Get-BuildSynopsis $Task)"
+  "-" * 79
+  Write-Build DarkGray "  $Path"
+  Write-Build DarkGray "  $($Task.InvocationInfo.ScriptName):$($Task.InvocationInfo.ScriptLineNumber)"
+  ""
+
+####################################################
+#       PESTER Configuration                       #
+####################################################
+
+Pester:
+  OutputFormat: NUnitXML
+  ExcludeFromCodeCoverage: []
+  Script:
+    - tests/Unit
+  ExcludeTag:
+  Tag:
+  CodeCoverageOutputFile: JaCoCo_coverage.xml
+  CodeCoverageOutputFileEncoding: ascii
+  CodeCoverageThreshold: 0
+
+####################################################
+#              PSDepend Configuration              #
+####################################################
+Resolve-Dependency:
+  Gallery: 'PSGallery'
+  AllowPrerelease: false
+  Verbose: false
+
+####################################################
+#               GitHub Configuration               #
+####################################################
+GitHubConfig:
+  GitHubFilesToAdd:
+    - 'CHANGELOG.md'
+  GitHubConfigUserName: dscbot
+  GitHubConfigUserEmail: dsccommunity@outlook.com
+  UpdateChangelogOnPrerelease: false

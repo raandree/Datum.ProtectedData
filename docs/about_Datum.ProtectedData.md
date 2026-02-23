@@ -1,57 +1,79 @@
 # Datum.ProtectedData
+
 ## about_Datum.ProtectedData
-```
-ABOUT TOPIC NOTE:
-The first header of the about topic should be the topic name.
-The second header contains the lookup name used by the help system.
-
-IE:
-# Some Help Topic Name
-## SomeHelpTopicFileName
-
-This will be transformed into the text file
-as `about_SomeHelpTopicFileName`.
-Do not include file extensions.
-The second header should have no spaces.
-```              
 
 # SHORT DESCRIPTION
-{{ Short Description Placeholder }}
 
-```
-ABOUT TOPIC NOTE:
-About topics can be no longer than 80 characters wide when rendered to text.
-Any topics greater than 80 characters will be automatically wrapped.
-The generated about topic will be encoded UTF-8.
-```
+Datum handler module to encrypt and decrypt secrets in Datum
+configuration data using the ProtectedData module.
 
 # LONG DESCRIPTION
-{{ Long Description Placeholder }}
 
-## Optional Subtopics
-{{ Optional Subtopic Placeholder }}
+Datum.ProtectedData is a handler module for the Datum
+configuration management framework. It provides encryption
+and decryption of sensitive data stored in YAML, JSON, or
+PSD1 configuration files.
+
+The module uses Dave Wyatt's ProtectedData module to perform
+the actual encryption and decryption operations, supporting
+both certificate-based and password-based scenarios.
+
+When registered as a Datum handler, it automatically detects
+encrypted data blocks (wrapped in `[ENC=...]`) and decrypts
+them during configuration resolution.
+
+## Exported Functions
+
+- Protect-Datum: Encrypts an object into a base64 string
+- Unprotect-Datum: Decrypts a base64 string to the object
+- Test-ProtectedDatumFilter: Tests if data is encrypted
+- Invoke-ProtectedDatumAction: Handler action for Datum
+
+## Handler Registration
+
+Register in your Datum.yml file:
+
+```yaml
+DatumHandlers:
+  Datum.ProtectedData::ProtectedDatum:
+    CommandOptions:
+      Certificate: <thumbprint>
+```
 
 # EXAMPLES
-{{ Code or descriptive examples of how to leverage the functions described. }}
+
+```powershell
+# Encrypt a credential
+$cred = Get-Credential
+$pass = ConvertTo-SecureString 'P@ssw0rd' -AsPlainText -Force
+Protect-Datum -InputObject $cred -Password $pass
+
+# Test if data is encrypted
+Test-ProtectedDatumFilter -InputObject '[ENC=QUJD]'
+
+# Decrypt data
+$decrypted = Unprotect-Datum -Base64Data $encrypted `
+    -Password $pass
+```
 
 # NOTE
-{{ Note Placeholder - Additional information that a user needs to know.}}
 
-# TROUBLESHOOTING NOTE
-{{ Troubleshooting Placeholder - Warns users of bugs}}
-
-{{ Explains behavior that is likely to change with fixes }}
+The PlainTextPassword parameter in Invoke-ProtectedDatumAction
+and the Password parameter in Protect-Datum/Unprotect-Datum
+are intended for testing and development only. In production,
+always use certificate-based encryption.
 
 # SEE ALSO
-{{ See also placeholder }}
 
-{{ You can also list related articles, blogs, and video URLs. }}
+- Datum: https://github.com/gaelcolas/datum/
+- ProtectedData: https://github.com/dlwyatt/ProtectedData
 
 # KEYWORDS
-{{List alternate names or titles for this topic that readers might use.}}
 
-- {{ Keyword Placeholder }}
-- {{ Keyword Placeholder }}
-- {{ Keyword Placeholder }}
-- {{ Keyword Placeholder }}    
-
+- Datum
+- ProtectedData
+- Encryption
+- Decryption
+- Secrets
+- Configuration
+- DSC
