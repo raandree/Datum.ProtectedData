@@ -51,7 +51,7 @@ Describe 'Unprotect-Datum' -Tag 'Unit' {
     Context 'When decrypting with a password' {
 
         BeforeAll {
-            Mock -ModuleName $script:moduleName -CommandName Unprotect-Data -MockWith { 'DecryptedSecret' }
+            Mock -ModuleName $script:moduleName -CommandName Unprotect-Data -RemoveParameterValidation 'InputObject' -MockWith { 'DecryptedSecret' }
         }
 
         It 'Should strip encapsulation and call Unprotect-Data' {

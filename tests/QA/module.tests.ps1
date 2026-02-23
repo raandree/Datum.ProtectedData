@@ -62,7 +62,8 @@ BeforeAll {
 Describe 'Changelog Management' -Tag 'Changelog' {
     It 'Changelog has been updated' -Skip:(
         !([bool](Get-Command git -EA SilentlyContinue) -and
-          [bool](& (Get-Process -Id $PID).Path -NoProfile -Command 'git rev-parse --is-inside-work-tree 2>$null'))
+          [bool](& (Get-Process -Id $PID).Path -NoProfile -Command 'git rev-parse --is-inside-work-tree 2>$null') -and
+          [bool](& (Get-Process -Id $PID).Path -NoProfile -Command 'git rev-parse origin/master 2>$null'))
         ) {
         # Get the list of changed files compared with master
         $HeadCommit = & git rev-parse HEAD

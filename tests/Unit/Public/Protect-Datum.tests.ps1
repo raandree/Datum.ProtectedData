@@ -55,14 +55,14 @@ Describe 'Protect-Datum' -Tag 'Unit' {
     Context 'When protecting data with a password' {
 
         BeforeAll {
-            Mock -ModuleName $script:moduleName -CommandName Protect-Data -MockWith { 'ProtectedBlob' }
+            Mock -ModuleName $script:moduleName -CommandName Protect-Data -RemoveParameterValidation 'InputObject' -MockWith { 'ProtectedBlob' }
         }
 
         It 'Should return an encapsulated string by default' {
             $password = ConvertTo-SecureString -String 'P@ssw0rd' -AsPlainText -Force
             $result = Protect-Datum -InputObject 'TestSecret' -Password $password
 
-            $result | Should -Match '^\[ENC=.*\]$'
+            $result | Should -Match '(?s)^\[ENC=.*\]$'
         }
 
         It 'Should return a string without encapsulation when NoEncapsulation is used' {
