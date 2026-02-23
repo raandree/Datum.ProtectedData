@@ -181,8 +181,17 @@ Describe 'Negative test cases' -Tag 'Integration' {
             $encrypted = Protect-Datum -InputObject 'WrongPasswordTest' -Password $script:testPassword
             $wrongPassword = ConvertTo-SecureString -String 'WrongPassword' -AsPlainText -Force
 
-            # ProtectedData emits a non-terminating error; the result is null
-            $decrypted = Unprotect-Datum -Base64Data $encrypted -Password $wrongPassword -ErrorAction SilentlyContinue
+            # Unprotect-Data may emit a non-terminating error (returns null) or
+            # throw a terminating error depending on environment and PS edition.
+            $decrypted = try
+            {
+                Unprotect-Datum -Base64Data $encrypted -Password $wrongPassword -ErrorAction SilentlyContinue
+            }
+            catch
+            {
+                $null
+            }
+
             $decrypted | Should -BeNullOrEmpty
         }
 
@@ -191,7 +200,15 @@ Describe 'Negative test cases' -Tag 'Integration' {
             $encrypted = Protect-Datum -InputObject $original -Password $script:testPassword
             $wrongPassword = ConvertTo-SecureString -String 'WrongPassword' -AsPlainText -Force
 
-            $decrypted = Unprotect-Datum -Base64Data $encrypted -Password $wrongPassword -ErrorAction SilentlyContinue
+            $decrypted = try
+            {
+                Unprotect-Datum -Base64Data $encrypted -Password $wrongPassword -ErrorAction SilentlyContinue
+            }
+            catch
+            {
+                $null
+            }
+
             $decrypted | Should -Not -Be $original
         }
     }
