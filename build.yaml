@@ -63,6 +63,7 @@ Pester:
   ExcludeFromCodeCoverage: []
   Script:
     - tests/Unit
+    - tests/Integration
   ExcludeTag:
   Tag:
   CodeCoverageOutputFile: JaCoCo_coverage.xml
