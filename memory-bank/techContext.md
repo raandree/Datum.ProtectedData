@@ -4,14 +4,14 @@
 
 | Component           | Current                              | Target (Sampler)                   |
 | ------------------- | ------------------------------------ | ---------------------------------- |
-| Build system        | InvokeBuild + custom `.build.ps1`  | Sampler + `build.ps1`            |
-| Dependencies        | PSDepend (`PSDepend.build.psd1`)   | `RequiredModules.psd1`           |
-| Deployment          | PSDeploy (`Deploy.PSDeploy.ps1`)   | Sampler publish tasks              |
-| CI/CD               | AppVeyor (`appveyor.yml`)          | Azure Pipelines                    |
-| Test framework      | Pester 4.10.1                        | Pester 5 (latest)                  |
-| Versioning          | Manual (`0.0.1` hardcoded)         | GitVersion (automated)             |
-| Module builder      | Custom merge in `.build/`          | ModuleBuilder via Sampler          |
-| Source layout        | `Datum.ProtectedData/public/`     | `source/Public/`                 |
+| Build system        | ~~InvokeBuild + custom `.build.ps1`~~  | Sampler + `build.ps1` ✅          |
+| Dependencies        | ~~PSDepend (`PSDepend.build.psd1`)~~   | `RequiredModules.psd1` ✅         |
+| Deployment          | ~~PSDeploy (`Deploy.PSDeploy.ps1`)~~   | Sampler publish tasks ✅           |
+| CI/CD               | ~~AppVeyor (`appveyor.yml`)~~          | Azure Pipelines ✅                 |
+| Test framework      | ~~Pester 4.10.1~~                      | Pester 5 ✅                        |
+| Versioning          | ~~Manual (`0.0.1` hardcoded)~~         | GitVersion (automated) ✅          |
+| Module builder      | ~~Custom merge in `.build/`~~          | ModuleBuilder via Sampler ✅       |
+| Source layout        | ~~`Datum.ProtectedData/public/`~~     | `source/Public/` ✅               |
 
 ## Target Technology Stack (from Datum.InvokeCommand Reference)
 
@@ -79,15 +79,32 @@ source/
 - `FunctionsToExport` must list explicit function names (not wildcards)
 - `RequiredModules` must declare `ProtectedData` dependency
 
-## Known Code Issues
+## Resolved Code Issues
 
-1. **Unprotect-Datum.ps1 line 112**: Typo `'ByCertificae'` should be `'ByCertificate'`
-2. **Invoke-ProtectedDatumAction.ps1**: `PlainTextPassword` parameter uses `[String]`
-   type but sends it through `ConvertTo-SecureString -AsPlainText -Force`
+1. **FIXED**: `Unprotect-Datum.ps1` typo `'ByCertificae'` -> `'ByCertificate'`
+2. **FIXED**: `#Requires -Modules ProtectedData` removed from individual files
+   (declared in module manifest `RequiredModules`)
+3. **FIXED**: Module manifest now uses explicit `FunctionsToExport` list
+4. **FIXED**: Unit tests replaced with real Pester 5 assertions + integration tests
+5. **BY DESIGN**: `Invoke-ProtectedDatumAction.ps1` `PlainTextPassword` uses
+   `[String]` because it receives args from Datum.yml YAML config
    (has `SuppressMessageAttribute` for PSSA)
-3. **All public functions**: Missing `process` block wrapping for pipeline-enabled params
-   (PSScriptAnalyzer `PSUseProcessBlockForPipelineCommand`)
-4. **Module manifest**: Uses wildcard exports (`FunctionsToExport = '*'`)
-5. **Protect-Datum.ps1**: Has `#Requires -Modules ProtectedData` at file level
-   (should be in manifest only)
-6. **Unit tests**: Mostly placeholder tests, not real assertions
+
+## Known Behavioral Notes
+
+1. `Protect-Data` (ProtectedData module) only accepts `String`, `SecureString`,
+   `PSCredential`, or `Byte[]` — not arbitrary objects
+2. `Unprotect-Data` wrong-password error is **non-terminating** — returns null
+   instead of throwing, even with `-ErrorAction Stop` on `Unprotect-Datum`
+3. `Protect-Data`/`Unprotect-Data` have `ValidateScript` attributes calling
+   module-internal functions — Pester mocks require `-RemoveParameterValidation`
+4. `Protect-Datum` wraps base64 at `MaxLineLength` (default 100) with `\r\n` —
+   regex matching needs `(?s)` dotall flag
+
+## Build Execution
+
+- Run: `./build.ps1 -Tasks test` (build + test)
+- Skip `-ResolveDependency` if `output/RequiredModules/` exists
+- Output: `output/builtModule/Datum.ProtectedData/0.2.0/`
+- Tests: `output/testResults/` (NUnit XML + Pester object)
+- **Important**: Run detached from VSCode terminal to avoid freezes

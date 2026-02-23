@@ -81,22 +81,52 @@ Datum.InvokeCommand (sibling module, reference)
   └── consumed by: Datum
 `
 
-## File Mapping: Current -> Target
+## Final Project Structure
 
-| Current Path                                       | Target Path                              |
-| -------------------------------------------------- | ---------------------------------------- |
-| `Datum.ProtectedData/public/*.ps1`               | `source/Public/*.ps1`                  |
-| `Datum.ProtectedData/Datum.ProtectedData.psd1`   | `source/Datum.ProtectedData.psd1`      |
-| `Datum.ProtectedData/Datum.ProtectedData.psm1`   | `source/Datum.ProtectedData.psm1`      |
-| `Datum.ProtectedData/tests/QA/`                  | `tests/QA/`                            |
-| `Datum.ProtectedData/tests/Unit/Public/`         | `tests/Unit/Public/`                   |
-| `appveyor.yml`                                   | `azure-pipelines.yml`                  |
-| `PSDepend.build.psd1`                            | `RequiredModules.psd1`                 |
-| `Deploy.PSDeploy.ps1`                            | (removed - handled by build.yaml)        |
-| `.build.ps1`                                     | `build.ps1` (Sampler standard)         |
-| `.build/` (task scripts)                         | (removed - tasks from Sampler modules)   |
-| (none)                                             | `build.yaml`                           |
-| (none)                                             | `GitVersion.yml`                       |
-| (none)                                             | `Resolve-Dependency.ps1`               |
-| (none)                                             | `Resolve-Dependency.psd1`              |
-| (none)                                             | `CHANGELOG.md`                         |
+```text
+Datum.ProtectedData/
+├── source/
+│   ├── Public/
+│   │   ├── Invoke-ProtectedDatumAction.ps1
+│   │   ├── Protect-Datum.ps1
+│   │   ├── Test-ProtectedDatumFilter.ps1
+│   │   └── Unprotect-Datum.ps1
+│   ├── Datum.ProtectedData.psd1
+│   └── Datum.ProtectedData.psm1
+├── tests/
+│   ├── Integration/
+│   │   └── Datum.ProtectedData.Integration.tests.ps1  (17 tests)
+│   ├── QA/
+│   │   └── module.tests.ps1                           (43 tests)
+│   └── Unit/Public/
+│       ├── Invoke-ProtectedDatumAction.tests.ps1       (2 tests)
+│       ├── Protect-Datum.tests.ps1                     (2 tests)
+│       ├── Test-ProtectedDatumFilter.tests.ps1         (9 tests)
+│       └── Unprotect-Datum.tests.ps1                   (2 tests)
+├── docs/
+│   └── about_Datum.ProtectedData.md
+├── .github/
+│   ├── ISSUE_TEMPLATE/ (5 templates)
+│   └── PULL_REQUEST_TEMPLATE.md
+├── .vscode/ (settings, analyzer, launch)
+├── memory-bank/ (7 files)
+├── build.ps1, build.yaml, RequiredModules.psd1
+├── Resolve-Dependency.ps1, Resolve-Dependency.psd1
+├── azure-pipelines.yml, GitVersion.yml
+├── CHANGELOG.md, CONTRIBUTING.md, CODE_OF_CONDUCT.md, SECURITY.md
+├── README.md, LICENSE, .gitignore, .gitattributes
+├── codecov.yml, .markdownlint.json
+└── output/ (gitignored, build artifacts)
+```
+
+## Test Coverage Summary
+
+| Test Suite | Count | Type | Mocked? |
+| --- | --- | --- | --- |
+| QA module tests | 43 | Quality/PSSA/Help | No |
+| Integration tests | 17 | Real encrypt/decrypt round-trips | No |
+| Invoke-ProtectedDatumAction | 2 | Parameter validation + mock | Yes |
+| Protect-Datum | 2 | Parameter validation + mock | Yes |
+| Test-ProtectedDatumFilter | 9 | Filter logic | No |
+| Unprotect-Datum | 2 | Parameter validation + mock | Yes |
+| **Total** | **75** | | |

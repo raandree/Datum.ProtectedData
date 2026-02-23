@@ -47,11 +47,13 @@ DatumHandlers:
 - Clear error messages when decryption fails
 - Module should be installable from PSGallery with `Install-Module`
 
-## Current State Issues
+## Current State (Post-Migration)
 
-- Module works but the project scaffolding is outdated
-- No CHANGELOG, no community contribution files
-- README is a single line with no usage instructions
-- Tests use Pester v4 syntax and are minimal (some are placeholder `True | Should -Be True`)
-- AppVeyor CI is deprecated for this ecosystem
-- No automated versioning (version hardcoded as `0.0.1`)
+- Module fully migrated to Sampler-based build system
+- All 75 tests passing (QA + Unit + Integration)
+- Comprehensive README with badges, examples, function reference
+- CHANGELOG, CONTRIBUTING, CODE_OF_CONDUCT, SECURITY all present
+- Azure Pipelines CI/CD configured (Build + Test PS5.1/PS7 + Deploy)
+- GitVersion automated semantic versioning (next: 0.2.0)
+- Integration tests verify real encrypt/decrypt round-trips
+- Bug fixed: certificate-based decryption now works (`ByCertificae` typo)

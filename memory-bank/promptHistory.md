@@ -97,3 +97,99 @@ to plan the Sampler migration work.
 4. Memory bank updated (progress.md, activeContext.md, promptHistory.md)
 
 **Remaining**: Build verification (`./build.ps1 -ResolveDependency`)
+
+### Prompt 4 (Build Troubleshooting)
+
+**Time**: ~20:30
+**Request**: User reported build failures, asked to troubleshoot test errors.
+
+**Actions taken**:
+
+1. Read the Pester result object from `output/testResults/PesterObject_*.xml`
+2. Identified 1 failure: `Protect-Datum.tests.ps1` regex `^\[ENC=.*\]$` didn't
+   match because `Protect-Datum` wraps base64 at 100 chars with `\r\n` and `.`
+   doesn't match newlines
+3. Fixed regex to use `(?s)` dotall flag: `(?s)^\[ENC=.*\]$`
+4. Re-ran build — all 58 tests passed
+
+**Key learning**: Always use `(?s)` dotall for regex matching multiline base64
+
+### Prompt 5 (Build Execution Pattern)
+
+**Time**: ~20:45
+**Request**: User asked to re-run build but in a separate process (VSCode freezing).
+Don't re-resolve dependencies if already present.
+
+**Actions taken**:
+
+1. Checked `output/RequiredModules/` exists — skipped `-ResolveDependency`
+2. Used `Start-Process` without `-Wait` and polled `output/test.log` file
+3. Build succeeded: 58/58 tests, 0 errors
+
+**Key learning**: VSCode freezes when terminal blocks on long-running process.
+Use detached `Start-Process` + log file polling pattern.
+
+### Prompt 6 (VSCode Freeze Discussion)
+
+**Time**: ~21:00
+**Request**: Build finished but VSCode went unresponsive.
+
+**Actions taken**:
+
+1. Previous run used `Start-Process -Wait` which blocked the terminal thread
+2. Changed to fully detached pattern: `Start-Process` without `-Wait`
+3. Poll log with `Get-Content -Tail` in a loop
+4. Verified builds succeed in ~7s with the detached pattern
+
+### Prompt 7 (Skill Creation)
+
+**Time**: ~21:15
+**Request**: Create a reusable skill for Sampler build debugging.
+
+**Actions taken**:
+
+1. Created `.agents/skills/sampler-build-debug/SKILL.md` with:
+   - Detached build execution pattern
+   - Pester result diagnosis techniques
+   - Common mock issues and fixes
+   - Sampler task reference
+2. User later moved the skill externally for generic reuse
+
+### Prompt 8 (Changelog Update)
+
+**Time**: ~21:30
+**Request**: Update CHANGELOG.md without skill references.
+
+**Actions taken**:
+
+1. Reformatted CHANGELOG to imperative mood per instructions
+2. Reordered categories: Added → Changed → Fixed → Removed
+3. Removed skill-related entries
+
+### Prompt 9 (Integration Tests)
+
+**Time**: ~21:45
+**Request**: Add tests that exercise real encrypt/decrypt to verify the module works.
+
+**Actions taken**:
+
+1. Created `tests/Integration/Datum.ProtectedData.Integration.tests.ps1` with
+   17 tests covering:
+   - String, PSCredential, SecureString, Byte[] round-trips
+   - NoEncapsulation, custom Header/Footer, MaxLineLength variations
+   - Test-ProtectedDatumFilter with real encrypted data
+   - Invoke-ProtectedDatumAction end-to-end (string + credential)
+   - Negative tests: wrong password, malformed base64, empty/null input
+2. Added `tests/Integration` to `build.yaml` Pester `Script` paths
+3. Fixed two test issues:
+   - Hashtable not supported by Protect-Data → changed to Byte[]
+   - Wrong password doesn't throw (non-terminating error) → assert null instead
+4. All 75 tests passing (43 QA + 15 unit + 17 integration)
+
+### Prompt 10 (Memory Bank Update)
+
+**Time**: ~22:00
+**Request**: Update all memory bank files with latest progress.
+
+**Actions taken**: Updated all 6 mutable files (progress, activeContext,
+techContext, systemPatterns, productContext, promptHistory).
