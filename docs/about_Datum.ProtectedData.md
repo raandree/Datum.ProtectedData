@@ -67,6 +67,10 @@ always use certificate-based encryption.
 
 - Datum: https://github.com/gaelcolas/datum/
 - ProtectedData: https://github.com/dlwyatt/ProtectedData
+- DSC Workshop: https://github.com/dsccommunity/dscworkshop
+- DSC Configuration Data Encryption Done Right (Jan-Hendrik
+  Peters): https://www.janhendrikpeters.de/post/dsc-configuration-data-encryption-done-right/
+- Securing MOF Files: https://learn.microsoft.com/en-us/powershell/scripting/dsc/pull-server/securemof
 
 # KEYWORDS
 

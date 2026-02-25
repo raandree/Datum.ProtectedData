@@ -193,3 +193,31 @@ Use detached `Start-Process` + log file polling pattern.
 
 **Actions taken**: Updated all 6 mutable files (progress, activeContext,
 techContext, systemPatterns, productContext, promptHistory).
+
+## 2026-02-25
+
+### Prompt 11 (Documentation — Real-World Usage Section)
+
+**Time**: ~afternoon
+**Request**: User asked to study Jan-Hendrik Peters' blog post
+"DSC Configuration Data Encryption Done Right" and check whether
+it was already covered in the project documentation. After analysis
+showed the core module API was covered but the layered DSC Workshop
+workflow was not, user asked to add a new section.
+
+**Actions taken**:
+
+1. Fetched and analysed the blog post at
+   janhendrikpeters.de/post/dsc-configuration-data-encryption-done-right/
+2. Compared against README.md and docs/about_Datum.ProtectedData.md
+3. Added "Real-World Usage with DSC Workshop" section to README.md:
+   - Credential layering example (ServerBaseline.yml vs FileServer.yml)
+   - MOF encryption with per-node CertificateID in LCM settings
+   - Further Reading links (blog post, DSC Workshop, Microsoft MOF docs)
+4. Updated docs/about_Datum.ProtectedData.md SEE ALSO with new links
+5. Updated CHANGELOG.md with new documentation entries
+6. Updated memory bank files (activeContext, progress, promptHistory)
+
+**Key finding**: The module's API was already well-documented; the gap
+was contextual guidance on using it within a layered DSC Workshop
+build pipeline.

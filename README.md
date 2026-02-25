@@ -224,6 +224,75 @@ Test-ProtectedDatumFilter -InputObject 'plain text'      # False
    - Maintains a script-scoped cache of decrypted values
    - Returns cached results for previously decrypted data
 
+## Real-World Usage with DSC Workshop
+
+Datum.ProtectedData is designed to work within a layered
+configuration data architecture such as the one provided by
+the [DSC Workshop](https://github.com/dsccommunity/dscworkshop).
+In a typical DSC Workshop setup, configuration data is
+organized in layers from least-specific (environment-wide) to
+most-specific (node-level). Encrypted secrets follow the same
+layering and override model as any other configuration value.
+
+### Credential Layering Example
+
+A domain-wide credential can be defined in a base layer such
+as `ServerBaseline.yml`:
+
+```yaml
+Domain:
+  DomainFqdn: subdomain.environment01.com
+  DomainName: subdomain
+  DomainDN: DC=subdomain,DC=environment01,DC=com
+  DomainJoinAccount: "[ENC=PE9ianMgVm...PC9PYmpzPg==]"
+```
+
+A role-specific override in `FileServer.yml` replaces only the
+credential while inheriting the rest:
+
+```yaml
+Domain:
+  DomainJoinAccount: "[ENC=PE9ianMgVm...T2Jqcz4=]"
+```
+
+During Datum resolution the most-specific value wins, so file
+servers receive a different domain join account while all other
+nodes use the baseline credential.
+
+### MOF Encryption
+
+When compiling DSC MOF files it is recommended to also encrypt
+the MOF itself using a per-node document encryption
+certificate. Assign each node a `CertificateID` in its LCM
+settings so the Local Configuration Manager can decrypt the
+MOF at apply time:
+
+```yaml
+LCMConfig:
+  Settings:
+    CertificateID: >-
+      $((Get-ChildItem Cert:\LocalMachine\My
+      -DnsName $Node.Name |
+      Sort-Object NotBefore |
+      Select-Object -First 1).Thumbprint)
+```
+
+This combines Datum.ProtectedData (encrypting configuration
+data at rest in source control) with DSC's built-in MOF
+encryption (encrypting credentials in the compiled MOF) for
+end-to-end secret protection.
+
+### Further Reading
+
+- [DSC Configuration Data Encryption Done Right](https://www.janhendrikpeters.de/post/dsc-configuration-data-encryption-done-right/)
+  — Jan-Hendrik Peters' walkthrough of layered credential
+  encryption with Datum.ProtectedData
+- [DSC Workshop](https://github.com/dsccommunity/dscworkshop)
+  — Reference implementation of a layered DSC build pipeline
+- [Securing MOF Files](https://learn.microsoft.com/en-us/powershell/scripting/dsc/pull-server/securemof)
+  — Microsoft documentation on MOF encryption with
+  certificates
+
 ## Contributing
 
 Please check out the [Contributing Guide](CONTRIBUTING.md) for guidelines on how to contribute to this project.

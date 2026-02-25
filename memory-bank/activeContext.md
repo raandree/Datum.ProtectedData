@@ -52,6 +52,19 @@ Start-Process pwsh -ArgumentList @('-NoProfile','-NonInteractive','-Command',
 
 Skip `-ResolveDependency` if `output/RequiredModules/` already exists.
 
+## Recent Changes
+
+### Documentation Enhancement (2026-02-25)
+
+- Added "Real-World Usage with DSC Workshop" section to README.md
+  covering credential layering across Datum hierarchy layers,
+  MOF encryption with per-node certificates, and links to
+  Jan-Hendrik Peters' blog post, DSC Workshop repository, and
+  Microsoft's MOF encryption documentation.
+- Updated `docs/about_Datum.ProtectedData.md` SEE ALSO section
+  with DSC Workshop, blog post, and MOF encryption links.
+- Updated CHANGELOG.md with new documentation entries.
+
 ## Remaining Work
 
 - Consider increasing `CodeCoverageThreshold` from 0 (currently disabled)

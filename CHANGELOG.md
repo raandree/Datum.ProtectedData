@@ -29,6 +29,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add `.github/PULL_REQUEST_TEMPLATE.md`.
 - Add comprehensive `README.md` with badges, overview, installation,
   quick start, full function reference, and examples.
+- Add "Real-World Usage with DSC Workshop" section to `README.md`
+  covering credential layering, MOF encryption, and links to
+  Jan-Hendrik Peters' blog post and DSC Workshop.
+- Add DSC Workshop, blog post, and MOF encryption links to
+  `docs/about_Datum.ProtectedData.md` SEE ALSO section.
 
 ### Changed
 

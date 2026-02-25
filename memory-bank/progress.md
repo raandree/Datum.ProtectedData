@@ -62,6 +62,9 @@
 - [x] Write comprehensive `README.md` with badges, overview, installation,
       usage examples, function reference, how-it-works section
 - [x] Update `docs/about_Datum.ProtectedData.md` with real content
+- [x] Add "Real-World Usage with DSC Workshop" section to README
+      (credential layering, MOF encryption, further reading links)
+- [x] Add DSC Workshop and blog post links to about-file SEE ALSO
 
 ### Phase 7: Cleanup (COMPLETE)
 
